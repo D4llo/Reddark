@@ -53,8 +53,14 @@
         <h1>✊ Reddark</h1>
 
         <h2>Those subreddits are going dark on June 12th and after. Some already are. Click <a
-                href="https://www.theverge.com/2023/6/5/23749188/reddit-subreddit-private-protest-api-changes-apollo-charges" title="Major Reddit communities will go dark to protest threat to third-party apps">here</a>
+                href="https://www.theverge.com/2023/6/5/23749188/reddit-subreddit-private-protest-api-changes-apollo-charges"
+                title="Major Reddit communities will go dark to protest threat to third-party apps">here</a>
             to find out why.</h2>
+
+        <p>
+            The website is in Beta. Contribute <a href="https://github.com/D4llo/Reddark"
+                title="Browse the code source on GitHub">here</a>.
+        </p>
     </header>
 
     <main>
@@ -64,11 +70,12 @@
     </main>
 
     <footer>
-        Code Source is <a href="https://github.com/D4llo/Reddark" title="Browse the code source on GitHub">here</a> - Join <a href="https://join-lemmy.org/instances" title="Join Lemmy instances">Lemmy</a> for less Reddit
+        Code Source is <a href="https://github.com/D4llo/Reddark" title="Browse the code source on GitHub">here</a> -
+        Join <a href="https://join-lemmy.org/instances" title="Join Lemmy instances">Lemmy</a> for less Reddit
         shenanigans.
     </footer>
 
-    <template id="categoryTemplate">    
+    <template id="categoryTemplate">
         <li>
             <h3></h3>
             <ul>
@@ -170,9 +177,6 @@
             fetchAll(Object.entries(_list).filter(([key, values]) => !key.includes("million")), secondList, () => { });
             e.target.style.display = "none";
         }
-
-
-
     </script>
 </body>
 
