@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddark</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 115 115%22><text y=%22.9em%22 font-size=%2290%22>✊</text></svg>">
+
+    <style>
+        ul {
+            list-style: none;
+        }
+
+        h3+ul li::before {
+            content: "";
+            margin-right: 2em;
+        }
+
+        h3+ul li.dark::before {
+            content: "✊";
+            margin-right: 1em;
+        }
+
+        footer {
+            text-align: center;
+        }
+
+        ul ul {
+            column-count: 2;
+        }
+
+        @media (width <=640px) {
+            ul ul {
+                column-count: 1;
+            }
+        }
+
+        a {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>✊ Reddark</h1>
+
+        <h2>Those subreddits are going dark on June 12th and after. Some already are. Click <a
+                href="https://www.theverge.com/2023/6/5/23749188/reddit-subreddit-private-protest-api-changes-apollo-charges">here</a>
+            to find out why.</h2>
+    </header>
+
+    <main>
+        <ul class="mainList"></ul>
+        <button type="button" style="display: none;">Load more strikers</button>
+        <ul class="secondList"></ul>
+    </main>
+
+    <footer>
+        Code Source is <a href="">here</a> - Join <a href="https://join-lemmy.org/instances">Lemmy</a> for less Reddit
+        shenanigan.
+    </footer>
+
+    <template id="categoryTemplate">
+        <li>
+            <h3></h3>
+            <ul>
+            </ul>
+        </li>
+    </template>
+
+    <template id="subcategoryTemplate">
+        <li><a></a> is <span class="status">live</span></li>
+    </template>
+
+    <script>
+        /* scrapped on https://www.reddit.com/r/ModCoord/comments/1401qw5/incomplete_and_growing_list_of_participating/ with */
+        /*
+      
+        copy(JSON.stringify($("[id^=form-] > div:nth-child(2) > div:nth-child(1)")[1].textContent.split("\n\n").slice(2).reduce(([acc, prop],cur) => {
+              if (cur.startsWith("r/")) {
+                  acc[prop].push(cur.trim());
+              }
+              else {
+            acc[cur] = [];
+                  prop = cur;
+          }
+              return [acc, prop];
+        }, [{}, ""])[0]))
+         
+      
+        */
+
+        const _list = {
+            "30+ million:": ["r/aww", "r/gaming", "r/Music", "r/Pics", "r/todayilearned"],
+            "20+ million:": ["r/art", "r/DIY", "r/EarthPorn", "r/explainlikeimfive", "r/gadgets", "r/LifeProTips", "r/mildlyinteresting", "r/sports", "r/videos"],
+            "10+ million:": ["r/creepy", "r/Futurology", "r/history", "r/lifehacks", "r/nosleep", "r/tifu", "r/unexpected"],
+            "5+ million:": ["r/AnimalsBeingBros", "r/AnimalsBeingDerps", "r/anime", "r/AskMen", "r/askwomen", "r/bestof", "r/BlackPeopleTwitter", "r/buildapc", "r/Confession", "r/ContagiousLaughter", "r/cryptocurrency", "r/FoodPorn", "r/HistoryMemes", "r/HumansBeingBros", "r/malefashionadvice", "r/me_irl", "r/minecraft", "r/nextfuckinglevel", "r/photography", "r/ps4"],
+            "1+ million:": ["r/AbruptChaos", "r/AbsoluteUnits", "r/adorableporn", "r/agedlikemilk", "r/Amateur", "r/amateurcumsluts", "r/AMD", "r/Android", "r/AnimalTextGifs", "r/antiwork", "r/Apple", "r/applyingtocollege", "r/askhistorians", "r/AssholeDesign", "r/astrophotography", "r/atheism", "r/audiophile", "r/Battlestations", "r/BiggerThanYouThought", "r/blackmagicfuckery", "r/blessedimages", "r/blursedimages", "r/boardgames", "r/bodyweightfitness", "r/BoneAppleTea", "r/boxoffice", "r/brasil", "r/BreedingMaterial", "r/BustyPetite", "r/BuyItForLife", "r/Canada", "r/cars", "r/CasualUK", "r/cats", "r/catswithjobs", "r/childfree", "r/childrenfallingover", "r/cinemagraphs", "r/CleverComebacks", "r/climbing", "r/college", "r/CollegeAmateurs", "r/collegebasketball", "r/comedycemetery", "r/comedyheaven", "r/confusing_perspective", "r/Cooking", "r/CozyPlaces", "r/CrazyfuckingVideos", "r/creampies", "r/cscareerquestions", "r/cumsluts", "r/cursedcomments", "r/CuteLittleButts", "r/de", "r/DecidingToBeBetter", "r/design", "r/destinythegame", "r/digitalpainting", "r/Disney", "r/DnD", "r/dndmemes", "r/DotA2", "r/drawing", "r/electronicmusic", "r/eyebleach", "r/Fantasy", "r/fantasyfootball", "r/FellowKids", "r/femalefashionadvice", "r/financialindependence", "r/formula1", "r/france", "r/freefolk", "r/Frugal", "r/Gamedev", "r/gameofthrones", "r/GirlsFinishingTheJob", "r/GlobalOffensive", "r/gonewild30plus", "r/gonewildaudio", "r/gothsluts", "r/graphic_design", "r/hacking", "r/Halo", "r/hardware", "r/harrypotter", "r/Hearthstone", "r/hiphopheads", "r/HobbyDrama", "r/HoldMyFeedingTube", "r/holdthemoan", "r/holup", "r/homeautomation", "r/HomeImprovement", "r/houseplants", "r/howto", "r/hydrohomies", "r/iamverysmart", "r/IDontWorkHereLady", "r/illegallysmolcats", "r/im14andthisisdeep", "r/insanepeoplefacebook", "r/instantkarma", "r/iphone", "r/IWantToLearn", "r/Jobs", "r/KerbalSpaceProgram", "r/kpop", "r/LetsNotMeet", "r/likeus", "r/LipsThatGrip", "r/LivestreamFail", "r/lotrmemes", "r/mac", "r/madlads", "r/Marvel", "r/maybemaybemaybe", "r/MealtimeVideos", "r/metal", "r/milf", "r/minimalism", "r/MMA", "r/MostBeautiful", "r/MovieDetails", "r/MurderedByWords", "r/nasa", "r/niceguys", "r/Nintendo", "r/nonononoyes", "r/nsfw_gifs", "r/nsfwhardcore", "r/nvidia", "r/oddlyspecific", "r/OnlyFans101", "r/OnOff", "r/palegirls", "r/paranormal", "r/pcgaming", "r/perfectlycutscreams", "r/Philippines", "r/photoCritique", "r/piracy", "r/popheads", "r/PornhubComments", "r/PrequelMemes", "r/programmerhumor", "r/PS5", "r/PUBATTLEGROUNDS", "r/PublicFlashing", "r/publicfreakout", "r/RarePuppers", "r/Raspberry_Pi", "r/reactiongifs", "r/RealGirls", "r/reddeadredemption", "r/Robinhood", "r/RocketLeague", "r/rpg", "r/self", "r/ShingekiNoKyojin", "r/ShitpostCrusaders", "r/shitposting", "r/shittylifeprotips", "r/SimpleLiving", "r/skyrim", "r/sneakers", "r/snowboarding", "r/socialskills", "r/somethingimade", "r/squirting", "r/StardewValley", "r/Steam", "r/suggestmeabook", "r/suspiciouslyspecific", "r/SweatyPalms", "r/technicallythetruth", "r/techsupport", "r/Terraria", "r/Thewalkingdead", "r/ThriftStoreHauls", "r/tihi", "r/TinyTits", "r/tipofmytongue", "r/TooAfraidToAsk", "r/tooktoomuch", "r/trees", "r/TrueCrime", "r/truegaming", "r/TwoSentenceHorror", "r/UrbanHell", "r/VALORANT", "r/watches", "r/WhatIsThisThing", "r/WhatsWrongWithYourDog", "r/woodworking", "r/worldpolitics", "r/wow", "r/xxfitness", "r/youtubehaiku", "r/ZeroWaste", "r/Zoomies"],
+            "500k+:": ["r/2007scape", "r/abelladanger", "r/AccidentalRenaissance", "r/ActLikeYouBelong", "r/ActualPublicFreakouts", "r/adhdmeme", "r/AmongUs", "r/animesuggest", "r/antimeme", "r/antimlm", "r/AppleWatch", "r/AskEurope", "r/AskScienceFiction", "r/asoiaf", "r/AssholeBehindThong", "r/assinthong", "r/bayarea", "r/bdsm", "r/bestoflegaladvice", "r/bodyperfection", "r/Boobies", "r/Boston", "r/Braless", "r/Breeding", "r/brooklynninenine", "r/burstingout", "r/cawwsplay", "r/chess", "r/Chicago", "r/civ", "r/community", "r/ConvenientCop", "r/cosplayprops", "r/cricket", "r/crochet", "r/Cursed_Images", "r/cybersecurity", "r/daddit", "r/DarkAngels", "r/darkjokes", "r/dbz", "r/DigitalArt", "r/disneyland", "r/DMAcademy", "r/DndBehindTheScreen", "r/dndnext", "r/doctorwho", "r/doodles", "r/EASportsFC", "r/edmproduction", "r/EngineeringStudents", "r/engrish", "r/escapefromtarkov", "r/facedownassup", "r/fauxmoi", "r/FestivalSluts", "r/ffxiv", "r/findareddit", "r/Fingering", "r/firstworldanarchists", "r/FlashingGirls", "r/formuladank", "r/Gamingcirclejerk", "r/gatekeeping", "r/GirlswithGlasses", "r/Glitch_in_the_Matrix", "r/GoneMild", "r/GoneWildStories", "r/GooglePixel", "r/GTA", "r/guns", "r/gwpublic", "r/gymmemes", "r/headphones", "r/hmm", "r/homelab", "r/hometheater", "r/horny", "r/Hotchickswithtattoos", "r/HouseOfTheDragon", "r/hugeboobs", "r/hulu", "r/ich_iel", "r/ifyoulikeblank", "r/ihavesex", "r/Illustration", "r/IndianBabes", "r/Intel", "r/Ireland", "r/IRLEasterEggs", "r/italy", "r/IthadToBeBrazil", "r/jailbreak", "r/JustGuysBeingDudes", "r/LabRats", "r/Lakers", "r/libertarian", "r/linux", "r/london", "r/losangeles", "r/LoveIsBlindOnNetflix", "r/magicTCG", "r/MakeNewFriendsHere", "r/mangacoloring", "r/medicalschool", "r/Megalophobia", "r/minecraftbuilds", "r/MinecraftMemes", "r/mls", "r/MorbidReality", "r/notinteresting", "r/obsf", "r/oldphotosinreallife", "r/Olympics", "r/OnlyFansAsstastic", "r/orgasms", "r/PantiesToTheSide", "r/pathofexile", "r/photoshop", "r/pizza", "r/PLASTT", "r/politicalcompassmemes", "r/PornStarletHQ", "r/pussypassdenied", "r/r4r", "r/Ratemypussy", "r/rearpussy", "r/reddevils", "r/RileyReid", "r/romania", "r/sbubby", "r/Seattle", "r/seduction", "r/seethru", "r/SelfAwarewolves", "r/SexyTummies", "r/shavedpussies", "r/ShittyMovieDetails", "r/simps", "r/singapore", "r/slutwife", "r/smashbros", "r/spiderman", "r/Squaredcircle", "r/StardustCrusaders", "r/StraightGirlsPlaying", "r/Subnautica", "r/Sweden", "r/taylorswift", "r/technews", "r/TerrifyingAsFuck", "r/tf2", "r/Tgirls", "r/thatlookedexpensive", "r/TheBoys", "r/TheSims", "r/thighhighs", "r/tits", "r/toronto", "r/traphentai", "r/TrueCrimePodcasts", "r/Ultralight", "r/vegetarian", "r/Warframe", "r/watchpeoplesurvive", "r/Whatswrongwithyourcat", "r/Wholesome", "r/whooties", "r/WhyWomenLiveLonger", "r/WitchesVsPatriarchy", "r/WomenOfColor", "r/yesyesyesno", "r/YoungGirlsGoneWild", "r/YouTube"],
+            "250k+:": ["r/196", "r/49ers", "r/AAAAAAAAAAAAAAAAA", "r/acrylicpainting", "r/adultneeds", "r/Alternativerock", "r/AmoledBackgrounds", "r/anarchism", "r/AnarchyChess", "r/androidapps", "r/AndroidGaming", "r/anime_titties", "r/Animewallpaper", "r/arabfunny", "r/arizona", "r/AsianAmericanPorn", "r/AskMenOver30", "r/AskPhotography", "r/asktransgender", "r/askwomenadvice", "r/asmr", "r/astrology", "r/AusLegal", "r/aves", "r/badcode", "r/badHistory", "r/Battlefield", "r/beginnerwoodworking", "r/belgium", "r/bigboye", "r/bindingofisaac", "r/blackcats", "r/BLACKPINK", "r/blep", "r/Bloodborne", "r/BobsBurgers", "r/bootyshorts", "r/bostonceltics", "r/BreadStapledToTrees", "r/BreakingTheSeal", "r/BreastEnvy", "r/brisbane", "r/britishcolumbia", "r/BritishSuccess", "r/broslikeus", "r/budgetcooking", "r/cakedecorating", "r/cameltoe", "r/Characterdrawing", "r/chile", "r/china", "r/cocktails", "r/collapse", "r/collegensfw", "r/Costco", "r/Couplesporn", "r/CrimeScene", "r/CrossStitch", "r/CuteModeSlutMode", "r/czech", "r/Dadswhodidnotwantpets", "r/DarkSouls", "r/DarkSouls2", "r/datgap", "r/delhi", "r/Denmark", "r/Diablo4", "r/DMT", "r/dndgreentext", "r/dogtraining", "r/dontflinch", "r/doublepenetration", "r/eagles", "r/edc", "r/Egg_irl", "r/electricians", "r/EliteDangerous", "r/emulation", "r/EntitledPeople", "r/espresso", "r/ExhibitionistSex", "r/factorio", "r/fakedisordercringe", "r/FanFiction", "r/feedthebeast", "r/FemboyHentai", "r/feminism", "r/FinalFantasy", "r/Finanzen", "r/fireemblem", "r/fixedbytheduet", "r/fixit", "r/Florida", "r/FrankOcean", "r/free", "r/fuckcars", "r/fuckingmachines", "r/FuckNestle", "r/furry", "r/futebol", "r/GamingDetails", "r/gatesopencomeonin", "r/gaybros", "r/gaymers", "r/GirlsWithGirls", "r/GodTierSuperpowers", "r/GoneWildSmiles", "r/Gorillaz", "r/GPT3", "r/grandorder", "r/greebles", "r/GreenBayPackers", "r/grilledcheese", "r/GTAorRussia", "r/guildwars2", "r/guitarlessons", "r/gunners", "r/Happycryingdads", "r/hardcoreaww", "r/HelpMeFind", "r/hipcleavage", "r/hue", "r/hungary", "r/Iamactuallyverybadass", "r/Ifyouhadtopickone", "r/imaginarymaps", "r/IndiaNostalgia", "r/IndiaSocial", "r/iOS", "r/ITCareerQuestions", "r/Kerala", "r/Killthecameraman", "r/KingdomHearts", "r/Kombucha", "r/LadyBoners", "r/LatinasGW", "r/leafs", "r/legs", "r/lewdgames", "r/LinkedInLunatics", "r/LinusTechTips", "r/linuxmasterrace", "r/livefromnewyork", "r/Liverpoolfc", "r/Longboarding", "r/lostarkgame", "r/LOTR_on_Prime", "r/love", "r/LoveIslandTV", "r/LucidDreaming", "r/MagicArena", "r/malefashion", "r/malehairadvice", "r/marijuanaenthusiasts", "r/Markiplier", "r/MedicalGore", "r/memesITA", "r/Metalcore", "r/Michigan", "r/microgrowery", "r/MinecraftCommands", "r/minecraftseeds", "r/minecraftsuggestions", "r/minnesota", "r/misleadingthumbnails", "r/ModeratePolitics", "r/montreal", "r/MusicForConcentration", "r/naughtyinpublic", "r/Neverbrokeabone", "r/NewTubers", "r/NewZealand", "r/Nofans", "r/NorthCarolina", "r/Notion", "r/Nursing", "r/occult", "r/OnGuardForThee", "r/OnlyFansBusty", "r/OnlyFansPetite", "r/osugame", "r/Ottawa", "r/outercourse", "r/paintings", "r/Paris", "r/PAWGtastic", "r/pelfie", "r/PeopleBeingJerks", "r/Permaculture", "r/Persona5", "r/phgonewild", "r/phoenix", "r/pitbulls", "r/PlantBasedDiet", "r/PlayStationPlus", "r/portugal", "r/PrintSF", "r/projectzomboid", "r/ProtectandServe", "r/Quebec", "r/RATS", "r/recruitinghell", "r/reddeadonline", "r/religiousfruitcake", "r/retrogaming", "r/runescape", "r/Samsung", "r/ScarySigns", "r/SequelMemes", "r/SexyFrex", "r/SexyWomanOfTheDay", "r/shittyrainbow6", "r/Shortcuts", "r/slightcellulite", "r/Smite", "r/socialanxiety", "r/Sourdough", "r/spreading", "r/StableDiffusion", "r/starbucks", "r/starcraft", "r/StarWarsSpeculation", "r/StudentLoans", "r/suctiondildos", "r/Suomi", "r/survivor", "r/sustainability", "r/tarot", "r/Teachers", "r/thanksimcured", "r/thedivision", "r/TheGoodPlace", "r/TheMonkeysPaw", "r/thingsforants", "r/thisismylifemeow", "r/tight_shorts", "r/tipofmyjoystick", "r/titanfall", "r/Titties", "r/TolkienFans", "r/totallynotrobots", "r/TrebuchetMemes", "r/TrumpCriticizesTrump", "r/Uberdrivers", "r/Unearthedarcana", "r/unixporn", "r/UnsentLetters", "r/Vancouver", "r/vaxxhappened", "r/Vietnam", "r/WeddingRingsShowing", "r/westernhentai", "r/whatcarshouldIbuy", "r/whenthe", "r/WholesomeHentai", "r/whowouldwin", "r/wikipedia", "r/xbox", "r/YAlit"],
+            "100k+:": ["r/11foot8", "r/2020PoliceBrutality", "r/3d6", "r/3DHentai", "r/abstractart", "r/admincraft", "r/adobeillustrator", "r/adultswim", "r/amateurradio", "r/AmericanDad", "r/AmITheDevil", "r/Amsterdam", "r/analcreampies", "r/AnimalsBeingConfused", "r/AnimalsBeingMoms", "r/animepiracy", "r/AnthemTheGame", "r/antiassholedesign", "r/applehelp", "r/Applemusic", "r/archlinux", "r/arknights", "r/Artistic_Hentai", "r/AskABrit", "r/AskAnAustralian", "r/askastrologers", "r/askfeminists", "r/AskGayMen", "r/asklatinamerica", "r/askmexico", "r/AskNetSec", "r/askTO", "r/asmongold", "r/aspiememes", "r/AttackOnTitties", "r/audi", "r/AussieGirls", "r/bali", "r/balkans_irl", "r/baltimore", "r/Barca", "r/bass", "r/battlefield_one", "r/battlefield2042", "r/BattlefieldV", "r/BeansInThings", "r/Beardsandboners", "r/bedroompop", "r/berkeley", "r/bikinibridge", "r/Bluey", "r/bookclub", "r/borrow", "r/botany", "r/botecodoreddit", "r/brandonsanderson", "r/Brawlhalla", "r/breakfastfood", "r/Brooklyn", "r/bugout", "r/buildapcsalesuk", "r/Bustyfit", "r/buttcoin", "r/cactus", "r/CanadaPolitics", "r/cannabis", "r/canucks", "r/CasualPH", "r/catbellies", "r/CatsBeingCats", "r/celebritymommy", "r/CHIBears", "r/cincinnati", "r/ClassroomOfTheElite", "r/Clits", "r/commanders", "r/COMPLETEANARCHY", "r/conceptart", "r/conversas", "r/Cosmere", "r/coys", "r/cpp", "r/croatia", "r/crochetpatterns", "r/csharp", "r/Cubers", "r/cuentaleareddit", "r/Cuphead", "r/cursedmemes", "r/DadsGoneWild", "r/DangerousDesign", "r/DaniDev", "r/DankMemesFromSite19", "r/darkestdungeon", "r/dataengineering", "r/DBZDokkanBattle", "r/DDLC", "r/DebateReligion", "r/DemonsSouls", "r/Detroit", "r/DetroitRedwings", "r/DevilMayCry", "r/DiscGolf", "r/distressingmemes", "r/DJs", "r/Dogberg", "r/doordash", "r/doordash_drivers", "r/dubai", "r/Dubstep", "r/EdgingTalk", "r/EDH", "r/edinburgh", "r/electricdaisycarnival", "r/ElsaGate", "r/Emily_Lynne", "r/ems", "r/EmulationOnAndroid", "r/EnoughMuskSpam", "r/espanol", "r/Essex", "r/etymology", "r/eurovision", "r/expats", "r/extremelyinfuriating", "r/f1technical", "r/FairytaleasFuck", "r/festivals", "r/fetish", "r/FFVIIRemake", "r/Finland", "r/firearms", "r/FireEmblemHeroes", "r/Firefox", "r/flashlight", "r/flightsim", "r/fpvracing", "r/fuckHOA", "r/furry_irl", "r/FutaCum", "r/futanari_comics", "r/g59", "r/gachagaming", "r/gamecollecting", "r/GameSale", "r/GamingLaptops", "r/GarlicBreadMemes", "r/garmin", "r/gaybrosgonemild", "r/GaySoundsShitposts", "r/GirlGamers", "r/girlsfrontline", "r/GirlsWithToys", "r/GlobalOffensiveTrade", "r/Greece", "r/groestlcoin", "r/GTBAE", "r/GuiltyGear", "r/guitarpedals", "r/Gundam", "r/Halifax", "r/handinpanties", "r/harley", "r/HaveWeMet", "r/hawaii", "r/HellsomeMemes", "r/highdeas", "r/HighHeels", "r/hiphop", "r/hiphopimages", "r/historiasdeterror", "r/homeassistant", "r/hotwifechallenges", "r/IDOWORKHERELADY", "r/IKEA", "r/ImaginaryWarhammer", "r/ImFinnaGoToHell", "r/incremental_games", "r/IndieDev", "r/IndyCar", "r/iOSthemes", "r/ironscape", "r/israel", "r/itsaunixsystem", "r/japanesefood", "r/jerseyshore", "r/justdependathings", "r/justforsocialmedia", "r/JustUnsubbed", "r/kindle", "r/knifeclub", "r/kotakuinaction", "r/kotor", "r/kpophelp", "r/kpopthoughts", "r/kubernetes", "r/lfg", "r/lgbtmemes", "r/liberalgunowners", "r/lickingdick", "r/linuxmemes", "r/lockpicking", "r/longisland", "r/mapmaking", "r/martialarts", "r/Maryland", "r/MCPE", "r/mead", "r/MedicalSchoolAnki", "r/Megaten", "r/MensLib", "r/Miami", "r/Mid_Century", "r/MinecraftChampionship", "r/minnesotavikings", "r/miraculousladybug", "r/mirrorsforsale", "r/MkeBucks", "r/mmamemes", "r/modelmakers", "r/Monitors", "r/Mooning", "r/Mountaineering", "r/Multicopter", "r/MxRMods", "r/mylittlepony", "r/namethatcar", "r/nbacirclejerk", "r/nbaspurs", "r/Nepal", "r/netorare", "r/NewOrleans", "r/NewYorkCity", "r/NoLawns", "r/nopanties", "r/norge", "r/nrl", "r/NSFWfashion", "r/nudism", "r/Oilpen", "r/OnlyFansBlonde", "r/OnlyFansBrunette", "r/Onlyfanssmallgirls", "r/Ooer", "r/oopsthatsdeadly", "r/opendirectories", "r/orlando", "r/Orphancrushingmachine", "r/pagan", "r/Paizuri", "r/Paleontology", "r/Panthers", "r/paradoxplaza", "r/Pathfinder_RPG", "r/pathofexilebuilds", "r/PCOS", "r/peliculas", "r/Perky", "r/pharmacy", "r/PHGamers", "r/photographs", "r/pikabu", "r/pizzacrimes", "r/politecats", "r/polls", "r/PornstarsHD", "r/posture", "r/preguntaleareddit", "r/PresidentialRaceMemes", "r/ProCreate", "r/ProgrammerDadJokes", "r/promoteonlyfans", "r/quilting", "r/Random_Acts_Of_Amazon", "r/RASPBERRY_PI_PROJECTS", "r/razer", "r/realsexyselfies", "r/redsox", "r/revancedapp", "r/reverseanimalrescue", "r/RiskyPorn", "r/robloxgamedev", "r/RocketLeagueEsports", "r/RocketLeagueExchange", "r/Roll20", "r/RPClipsGTA", "r/RWBY", "r/sadboys", "r/samplesize", "r/Scotch", "r/sexygirlsinjeans", "r/SFGiants", "r/ShitpostXIV", "r/ShittyDarkSouls", "r/shittyveganfoodporn", "r/Shopify", "r/shortsqueeze", "r/SiriPornstar", "r/SissyChastity", "r/skookum", "r/Slovakia", "r/softies", "r/software", "r/solar", "r/solarpunk", "r/solesandholes", "r/SonicTheHedgehog", "r/soundslikemusic", "r/southafrica", "r/spanking", "r/spidergwen_34", "r/spiders", "r/Stargate", "r/StarWarsCantina", "r/SteamVR", "r/steelers", "r/Steroids", "r/Stormlight_Archive", "r/straykids", "r/StreetFighter", "r/stunfisk", "r/SuddenlyIncest", "r/swtor", "r/synology", "r/TedLasso", "r/Tendies", "r/TerrainBuilding", "r/Thailand", "r/the10thdentist", "r/thecatdimension", "r/TheExpanse", "r/TheLastofUsHBOseries", "r/therapy", "r/thesopranos", "r/TheUnderboob", "r/TheUnderbun", "r/theydidthemonstermath", "r/Thighs", "r/tiktokgossip", "r/tja", "r/tmobile", "r/tookjustenough", "r/TorontoBlueJays", "r/toyota", "r/truecreepy", "r/TVDetails", "r/twitter", "r/TwoRedditorsOneCup", "r/TwoSentenceHappiness", "r/UberEats", "r/Ultramarathon", "r/ultrawidemasterrace", "r/userexperience", "r/UtahJazz", "r/ValorantCompetitive", "r/Vita", "r/vmware", "r/VRchat", "r/wallpaperengine", "r/WastedGifs", "r/Wellworn", "r/whatisthiscar", "r/WhatsTheWord", "r/whiskey", "r/wien", "r/wine", "r/wirklichgutefrage", "r/Wordpress", "r/WWEGames", "r/WWIIpics", "r/Xenoblade_Chronicles", "r/Yogscast", "r/YouTubers", "r/ZootopiaPorn"],
+            "50k+:": ["r/1200isjerky", "r/19684", "r/420", "r/4Runner", "r/600euro", "r/AbolishTheMonarchy", "r/ACMilan", "r/AEWOfficial", "r/AirplaneNudes", "r/Alaska", "r/Alpinism", "r/AltBoobWorld", "r/AmazonFlexDrivers", "r/animalcrossingr34", "r/AnimalsBeingStrange", "r/antitrampo", "r/AO3", "r/Asexual", "r/Ask_Lawyers", "r/askagerman", "r/asktrumpsupporters", "r/AustralianNostalgia", "r/ayudamexico", "r/BakeOff", "r/baldursgate", "r/behindthebastards", "r/bengalcats", "r/BigMouth", "r/blahaj", "r/Blursedcomments", "r/boating", "r/BodyAcceptance", "r/bonnebouffe", "r/brandonherrara", "r/Brazil", "r/brdev", "r/brunei", "r/CalamityMod", "r/calgaryflames", "r/Canadapublicservants", "r/canberra", "r/Canon", "r/caps", "r/carscirclejerk", "r/cartoons", "r/CasualIreland", "r/casualro", "r/catan", "r/catsinpants", "r/Chadposting", "r/chargers", "r/Charleston", "r/chickswearingchucks", "r/Chinesium", "r/Chipotle", "r/ChronicIllness", "r/civ5", "r/clevelandcavs", "r/ColoradoAvalanche", "r/Colts", "r/commandandconquer", "r/conspiracyNOPOL", "r/contestofchampions", "r/corridor", "r/Couriersofreddit", "r/cpp_questions", "r/cremposting", "r/criminalminds", "r/css_irl", "r/custommagic", "r/dadbod", "r/Daddypics", "r/dancemoms", "r/DarkSidePlayground", "r/DaystromInstitute", "r/dbxv", "r/deadpool", "r/DeadSpace", "r/DeepDream", "r/degoogle", "r/DGU", "r/discworld", "r/DisneyWorld", "r/DogShowerThoughts", "r/dragonball", "r/DrakeTheType", "r/EdgeTogether", "r/electricskateboarding", "r/esp32", "r/ethicalfashion", "r/EtsySellers", "r/ExplainAFilmPlotBadly", "r/F1NN5TER", "r/Fakemon", "r/fcbayern", "r/FilmClubPH", "r/Firefighting", "r/flyers", "r/FootjobCum", "r/FootTalk", "r/freestickers", "r/fuckwasps", "r/GameSwap", "r/geckos", "r/GeForceNOW", "r/genderqueer", "r/geocaching", "r/geschichte", "r/gingerdudes", "r/gis", "r/Gloomhaven", "r/Gnome", "r/GoForGold", "r/gpumining", "r/GreatBritishBakeOff", "r/GreekMythology", "r/Grubhubdrivers", "r/guessmyage", "r/guitarcirclejerk", "r/GWASapphic", "r/Habs", "r/harborfreight", "r/HarryPotterBooks", "r/HeSquats", "r/hingeapp", "r/HireaWriter", "r/hockeyjerseys", "r/hoggit", "r/horrorgaming", "r/HorrorMovieNudes", "r/hotas", "r/howardstern", "r/HPfanfiction", "r/humansarespaceorcs", "r/humblebundles", "r/HypixelSkyblock", "r/iamveryculinary", "r/Idiomas", "r/IndianHipHopHeads", "r/Indianinstagramreels", "r/insurance", "r/Invisalign", "r/IsolatedVocals", "r/ispeakthelanguage", "r/ItaliaPersonalFinance", "r/itrunsdoom", "r/Jeopardy", "r/jewelry", "r/Judaism", "r/juxtaposition", "r/Kalilinux", "r/KamenRider", "r/karma", "r/KissAnime", "r/knife_swap", "r/kustom", "r/LabourUK", "r/LadiesInLeather", "r/latin", "r/libraries", "r/libros", "r/Lightroom", "r/LinkinPark", "r/linuxhardware", "r/linuxmint", "r/liverpool", "r/LondonOntario", "r/LuckyPierre", "r/magicthecirclejerking", "r/ManjaroLinux", "r/memeframe", "r/memeitaliani", "r/menkampf", "r/MichiganWolverines", "r/microbork", "r/MightyHarvest", "r/milwaukeetool", "r/mina_irl", "r/Mistborn", "r/Montana", "r/muacjdiscussion", "r/myfriendwantstoknow", "r/narcissism", "r/NarutoFanfiction", "r/nathanwpyle", "r/naturalpenis", "r/NCAAFBseries", "r/neovim", "r/NewcastleUponTyne", "r/newmusic", "r/ningen", "r/NoContract", "r/NoFansCouples", "r/NorCal", "r/nosleepOOC", "r/notjustbikes", "r/Nottingham", "r/NYCRail", "r/oddlyweird", "r/Okbuddypersona", "r/Omaha", "r/onewheel", "r/onewordeach", "r/OnlyFans101BrandNew", "r/OnlyFans101Inked", "r/OnlyFansNaturallyHot", "r/OnlyFansReds", "r/OnlyFansSHMILFS", "r/OrangeIsTheNewBlack", "r/otomeisekai", "r/outerwilds", "r/outofcontextcomics", "r/Ozark", "r/palebeauties", "r/Parkour", "r/Pathfinder2e", "r/Pauper", "r/peanutbutterisoneword", "r/pens", "r/PersonalFinanceNZ", "r/PirateKitties", "r/PlanetCoaster", "r/Planetside", "r/PlantsVSZombies", "r/PLC", "r/Poem", "r/PokemonBDSP", "r/pokemonshowdown", "r/pop_os", "r/popheadscirclejerk", "r/portuguese", "r/postrock", "r/powerrangers", "r/preguntasreddit", "r/PrimeiraLiga", "r/PrivacyGuides", "r/Proxmox", "r/Purdue", "r/Queen", "r/r4rindia", "r/Rangers", "r/rccars", "r/rct", "r/RedditInReddit", "r/RegularRevenge", "r/RelationshipIndia", "r/rentnerzeigenaufdinge", "r/respectthreads", "r/rollerblading", "r/rollercoasters", "r/rpcs3", "r/SadHorseShow", "r/SanJoseSharks", "r/Saskatoon", "r/Satan", "r/ScenesFromAHat", "r/selfies", "r/SensualMFM", "r/SEXONDRUGS", "r/sextstories", "r/Shitstatistssay", "r/shubreddit", "r/Simracingstewards", "r/Skullgirls", "r/slovenia", "r/SpeculativeEvolution", "r/SplitDepthGIFS", "r/sportsbrasGW", "r/srilanka", "r/startrekgifs", "r/SteamGameSwap", "r/StoicMemes", "r/streaming", "r/Stunners", "r/summertimegirls", "r/SummonSign", "r/TakeaPlantLeaveaPlant", "r/talesfromsecurity", "r/tempe", "r/Tennessee", "r/TeslaModelY", "r/thatshowthingswork", "r/therapists", "r/TheWalkingDeadGame", "r/todoist", "r/torties", "r/totk", "r/TownOfSalemGame", "r/toyotatacoma", "r/TrackMania", "r/treelaw", "r/tuckedinpuppies", "r/Tucson", "r/twilight", "r/TwoBestFriendsPlay", "r/UBC", "r/uncut_cock", "r/UnusualArt", "r/Uruguay", "r/USPS", "r/VeganDE", "r/VentiHentai", "r/violinist", "r/vivimosenunasociedad", "r/VoiceActing", "r/wallonia", "r/wallstreetbets_", "r/Warhammer30k", "r/Watchmen", "r/Wednesday", "r/wewantcups", "r/whereisthis", "r/whitesox", "r/WiiHacks", "r/wolveswithwatermelons", "r/XFL", "r/yaoigif", "r/yurigif", "r/ZodiacKiller"]
+        }
+
+    </script>
+    <script>
+        const banned = "https://www.reddit.com/r/informatique.json";
+        const private = "https://www.reddit.com/r/SingletonArena.json";
+
+        const categoryTemplate = document.querySelector('#categoryTemplate');
+        const subcategoryTemplate = document.querySelector('#subcategoryTemplate');
+        const mainList = document.querySelector(".mainList");
+        const secondList = document.querySelector(".secondList");
+
+        async function fetchDarkness(sub) {
+            const data = await fetch(`https://www.reddit.com/${sub}.json`).then(x => x.json());
+            return data;
+        }
+
+        const isDark = (data) => (data.reason ?? false) && data.reason === "private";
+
+        const cloneSubcategory = (value) => {
+            const clone = subcategoryTemplate.content.cloneNode(true);
+            const a = clone.querySelector("a");
+            a.href = `https://old.reddit.com/${value.name}`;
+            a.textContent = value.name;
+            const dark = value.isDark
+            clone.querySelector("li").classList.toggle("dark", dark);
+            clone.querySelector(".status").textContent = dark ? "dark" : "live";
+            return clone;
+        }
+
+        const cloneCategory = (header, values, target) => {
+            const clone = categoryTemplate.content.cloneNode(true);
+            clone.querySelector("h3").textContent = header;
+            const subcategory = clone.querySelector("ul");
+
+            values.forEach(value => subcategory.appendChild(cloneSubcategory(value)));
+
+            target.appendChild(clone);
+        }
+
+        const fetchAll = async (list, target, callback) => {
+            const results = await Promise.all(list
+                .map(async ([key, values]) => {
+                    const responses = await Promise.all(values.map(fetchDarkness));
+                    return [key, values.map((v, i) => ({
+                        name: v,
+                        isDark: isDark(responses[i])
+                    }))];
+                }));
+
+            results.forEach(([key, values]) => cloneCategory(key, values, target));
+            callback();
+        }
+
+        fetchAll(Object.entries(_list).filter(([key, values]) => key.includes("million")), mainList, () => {
+            document.querySelector("button").style.display = "block";
+        });
+
+        document.querySelector("button").onclick = (e) => {
+            fetchAll(Object.entries(_list).filter(([key, values]) => !key.includes("million")), secondList, () => { });
+            e.target.style.display = "none";
+        }
+
+
+
+    </script>
+</body>
+
+</html>
